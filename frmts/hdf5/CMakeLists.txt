@@ -24,6 +24,7 @@ if (WIN32)
   target_compile_definitions(gdal_HDF5 PRIVATE -DWIN32)
 endif ()
 target_include_directories(gdal_HDF5 SYSTEM PRIVATE ${HDF5_INCLUDE_DIRS})
+target_include_directories(gdal_HDF5 PRIVATE ${GDAL_RASTER_FORMAT_SOURCE_DIR}/netcdf)
 gdal_target_link_libraries(gdal_HDF5 PRIVATE ${HDF5_C_LIBRARIES})
 
 if (HDF5_BUILD_SHARED_LIBS)
