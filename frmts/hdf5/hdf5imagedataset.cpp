@@ -722,6 +722,7 @@ CPLErr HDF5ImageDataset::CreateProjections()
     {
         // Migrate code from netcdf driver here to interpret 
         // Projection system and Geotransform
+        CPLDebug("GDAL_HDF5", "Identified as CF product");
     }
     case UNKNOWN_PRODUCT:
     {
@@ -1006,12 +1007,8 @@ void HDF5ImageDataset::IdentifyProductType()
     const char *const pszConventions = HDF5Dataset::GetMetadataItem("Conventions");
     if(pszConventions != nullptr && strstr(pszConventions, "CF") != nullptr)
     {
-       bool attached = true;
-       for(int idx=0; idx < ndims; idx++)
-       {
-           attached = attached && (H5DSget_num_scales(dataset_id, idx) > 0);
-       }
-       if (attached)
+       if ( H5Aexists(dataset_id, "coordinates") &&
+            H5Aexists(dataset_id, "grid_mapping") )
        {
            iSubdatasetType = H5_CF_PRODUCT;
        }

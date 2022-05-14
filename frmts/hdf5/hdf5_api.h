@@ -42,7 +42,6 @@
 #endif
 
 #include "hdf5.h"
-#include "hdf5_hl.h"
 
 #ifdef _MSC_VER
 #pragma warning(pop)
