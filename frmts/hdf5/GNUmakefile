@@ -8,7 +8,7 @@ OBJ	=	hdf5dataset.o hdf5imagedataset.o \
 HDFEOS_OPTS	=
 SUBLIBS 	=
 
-CPPFLAGS	:=	 $(HDF5_INCLUDE) $(CPPFLAGS)
+CPPFLAGS	:=	 $(HDF5_INCLUDE) -iquote ../netcdf $(CPPFLAGS)
 
 default:	$(OBJ:.o=.$(OBJ_EXT)) $(SUBLIBS)
 

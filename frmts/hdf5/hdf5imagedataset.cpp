@@ -28,7 +28,7 @@
  ****************************************************************************/
 
 #include "hdf5_api.h"
-
+#include "netcdf_cf_constants.h"
 #include "cpl_string.h"
 #include "gdal_frmts.h"
 #include "gdal_pam.h"
@@ -43,7 +43,7 @@ CPL_CVSID("$Id$")
 
 class HDF5ImageDataset final: public HDF5Dataset
 {
-    typedef enum { UNKNOWN_PRODUCT = 0, CSK_PRODUCT } Hdf5ProductType;
+    typedef enum { UNKNOWN_PRODUCT = 0, CSK_PRODUCT, H5_CF_PRODUCT } Hdf5ProductType;
 
     typedef enum
     {
@@ -718,6 +718,12 @@ CPLErr HDF5ImageDataset::CreateProjections()
 
         break;
     }
+    case H5_CF_PRODUCT:
+    {
+        // Migrate code from netcdf driver here to interpret 
+        // Projection system and Geotransform
+        CPLDebug("GDAL_HDF5", "Identified as CF product");
+    }
     case UNKNOWN_PRODUCT:
     {
         constexpr int NBGCPLAT = 100;
@@ -994,6 +1000,18 @@ void HDF5ImageDataset::IdentifyProductType()
                     iCSKProductType = PROD_CSK_L1D;
             }
         }
+        return;
+    }
+
+    // If not CSK product, check if it follows CF conventions
+    const char *const pszConventions = HDF5Dataset::GetMetadataItem("Conventions");
+    if(pszConventions != nullptr && strstr(pszConventions, "CF") != nullptr)
+    {
+       if ( H5Aexists(dataset_id, "coordinates") &&
+            H5Aexists(dataset_id, "grid_mapping") )
+       {
+           iSubdatasetType = H5_CF_PRODUCT;
+       }
     }
 }
 
